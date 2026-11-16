@@ -1,0 +1,21 @@
+[
+  {
+    "id": "ev_synthetic_1",
+    "sport_key": "basketball_nba",
+    "commence_time": "2026-11-17T00:30:00Z",
+    "home_team": "Synthetic Owls",
+    "away_team": "Synthetic Hawks",
+    "bookmakers": [
+      {"key": "pinnacle", "title": "Pinnacle", "last_update": "2026-11-16T12:00:00Z",
+       "markets": [{"key": "h2h", "outcomes": [
+         {"name": "Synthetic Owls", "price": 1.80}, {"name": "Synthetic Hawks", "price": 2.10}]}]},
+      {"key": "threeway", "title": "Three Way",
+       "markets": [{"key": "h2h", "outcomes": [
+         {"name": "Synthetic Owls", "price": 2.2}, {"name": "Synthetic Hawks", "price": 2.9},
+         {"name": "Draw", "price": 4.0}]}]},
+      {"key": "otherbook", "title": "Other",
+       "markets": [{"key": "h2h", "outcomes": [
+         {"name": "Synthetic Owls", "price": 1.85}, {"name": "Synthetic Hawks", "price": 2.00}]}]}
+    ]
+  }
+]

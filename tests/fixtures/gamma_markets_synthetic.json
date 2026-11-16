@@ -1,0 +1,53 @@
+[
+  {
+    "id": "5001",
+    "conditionId": "0xcond_synthetic_a",
+    "question": "Synthetic Hawks vs. Synthetic Owls",
+    "slug": "synthetic-hawks-owls",
+    "outcomes": "[\"Hawks\", \"Owls\"]",
+    "outcomePrices": "[\"0.55\", \"0.45\"]",
+    "clobTokenIds": "[\"111\", \"222\"]",
+    "gameStartTime": "2026-11-17 00:30:00+00",
+    "orderPriceMinTickSize": 0.001,
+    "orderMinSize": 5,
+    "secondsDelay": 0,
+    "rewardsMinSize": 50,
+    "rewardsMaxSpread": 4.5,
+    "negRisk": false,
+    "acceptingOrders": true,
+    "closed": false,
+    "sportsMarketType": "moneyline",
+    "gameId": "g-1",
+    "feeSchedule": {"rate": 0.05, "exponent": 1, "takerOnly": true, "rebateRate": 0.15},
+    "clobRewards": [{"rewardsDailyRate": 10.0}, {"rewardsDailyRate": 2.5}],
+    "events": [{"id": "e1", "title": "Hawks vs. Owls", "gameId": "g-1",
+                "homeTeamName": "Owls", "awayTeamName": "Hawks",
+                "startTime": "2026-11-17T00:30:00Z", "live": false, "ended": false}]
+  },
+  {
+    "id": "5002",
+    "conditionId": "0xcond_synthetic_b",
+    "question": "Synthetic Bears vs. Synthetic Wolves",
+    "outcomes": ["Bears", "Wolves"],
+    "clobTokenIds": ["333", "444"],
+    "gameStartTime": "2026-11-16T23:00:00Z",
+    "orderPriceMinTickSize": 0.01,
+    "orderMinSize": 5,
+    "acceptingOrders": true,
+    "closed": false,
+    "sportsMarketType": "moneyline",
+    "feeSchedule": "{\"rate\": 0.05, \"exponent\": 1, \"takerOnly\": true, \"rebateRate\": 0.15}",
+    "clobRewards": null,
+    "events": []
+  },
+  {
+    "id": "5003",
+    "conditionId": "0xcond_synthetic_spread",
+    "outcomes": "[\"Bears\", \"Wolves\"]",
+    "clobTokenIds": "[\"555\", \"666\"]",
+    "orderPriceMinTickSize": 0.01,
+    "orderMinSize": 5,
+    "sportsMarketType": "spreads",
+    "feeSchedule": {"rate": 0.05}
+  }
+]

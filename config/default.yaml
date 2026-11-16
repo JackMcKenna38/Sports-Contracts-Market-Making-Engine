@@ -1,0 +1,153 @@
+leagues: [nba, nhl]
+market_type: moneyline
+
+endpoints:
+  gamma: https://gamma-api.polymarket.com
+  clob: https://clob.polymarket.com
+  clob_ws: wss://ws-subscriptions-clob.polymarket.com/ws/market
+  data_api: https://data-api.polymarket.com/v2
+  sports_ws: wss://sports-api.polymarket.com/ws
+  odds_api: https://api.the-odds-api.com/v4
+  geoblock: https://polymarket.com/api/geoblock
+
+http:
+  user_agent: tickbook-research/0.1
+  timeout_seconds: 20
+  max_retries: 5
+  backoff_base_seconds: 1.0
+  backoff_max_seconds: 60
+  # Client-side spacing between requests to one host. Polymarket's published limits
+  # (docs: api-reference/rate-limits, read 16 Nov 2026) are far higher: 300 req / 10 s on
+  # Gamma /markets, 500 req / 10 s on CLOB /books, 300 req / 10 s on Data API /v2/trades.
+  min_interval_seconds: 0.2
+
+discovery:
+  refresh_minutes: 15
+  page_limit: 100
+  closed_lookback_days: 3
+  # Reward pools are read from the CLOB only for games starting within this many hours.
+  rewards_window_hours: 48
+
+recorder:
+  market_ws_ping_seconds: 10
+  market_ws_idle_timeout_seconds: 30
+  sports_ws_pong_deadline_seconds: 10
+  sports_ws_idle_timeout_seconds: 30
+  rest_snapshot_seconds: 60
+  books_batch_size: 500
+  max_assets_per_connection: 500
+  reconnect_base_seconds: 1
+  reconnect_max_seconds: 60
+  writer_flush_seconds: 1
+  writer_max_buffer_rows: 200000
+  writer_max_fail_seconds: 30
+  heartbeat_seconds: 15
+  # `mm status --require-live` fails when the last heartbeat is older than this.
+  heartbeat_stale_seconds: 90
+  drift_alert_ms: 2000
+  trade_backfill_limit: 1000
+  trade_backfill_max_pages: 500
+  record_hours_after_start: 6
+  # null records every listed game, weeks ahead. Measured live (16 Nov 2026, off-peak, 542
+  # tokens): about 2.9 GB of database a day, half of it from games more than 48 hours away.
+  # Set to 48 to record roughly 1.1 GB a day instead.
+  record_hours_before_start: null
+
+odds:
+  # Each poll costs one credit per region. On the schedule Polymarket listed on 16 Nov 2026
+  # (about 15 games a day over about 8 distinct start times) the defaults below come to roughly
+  # 30 credits a day, about 900 a month: more than the free 500. To stay inside the free tier
+  # use `regions: [eu]` (Pinnacle is there) or a single snapshot per game.
+  regions: [us, eu]
+  markets: h2h
+  sport_keys:
+    nba: basketball_nba
+    nhl: icehockey_nhl
+  # Minutes before game start at which a snapshot is taken. Each poll returns
+  # every game in the league and costs one credit per region.
+  poll_minutes_before_start: [360, 60]
+  poll_on_new_game: true
+  # Set to poll on a fixed interval instead (paid tier).
+  interval_minutes: null
+  min_credits_reserve: 20
+  check_seconds: 60
+  reduced_poll_minutes_before_start: [60]
+
+matching:
+  start_window_minutes: 30
+  loose_window_hours: 24
+  aliases_file: config/team_aliases.yaml
+  review_file: data/review/odds_matches.csv
+
+fairvalue:
+  devig_method: multiplicative   # multiplicative | power | shin
+  anchor_bookmaker: pinnacle
+  bookmaker_weights:
+    pinnacle: 5.0
+  default_weight: 1.0
+  max_odds_age_minutes: 420
+  min_bookmakers: 1
+
+quoting:
+  min_price: 0.01
+  max_price: 0.99
+  half_spread: 0.02
+  quote_size: 100
+  max_position_shares: 500
+  skew_strength: 0.0
+  requote_threshold: 0.005
+  cancel_threshold: 0.02
+  stop_minutes_before_start: 10
+
+# Named overrides of the quoting section, selected with --strategy.
+strategies:
+  baseline:
+    skew_strength: 0.0
+  skew:
+    skew_strength: 0.02
+
+risk:
+  starting_capital: 10000
+  daily_loss_limit: 250
+  max_event_exposure: 400
+  loss_size_cut_fraction: 0.5
+  max_losses_per_event: 3
+  stale_book_seconds: 180
+  stale_game_feed_seconds: 60
+
+sim:
+  # Milliseconds added to every simulated order action. null uses the median
+  # receive-minus-exchange gap measured over the data window.
+  latency_ms: null
+  tick_seconds: 10
+  ledger_interval_seconds: 300
+  # The feed reports each fill once, on the taker's token (checked live, 16 Nov 2026).
+  # `both` mirrors NO-token trades into YES space so all flow reaches the fill model;
+  # `yes_only` ignores them and under-counts fills.
+  trade_assets: both
+  fill_on_book_cross: true
+  markout_horizons_seconds: [60, 300, 1800]
+
+rewards:
+  single_sided_scale: 3.0
+  two_sided_band: [0.10, 0.90]
+  min_daily_payout: 1.0
+  sample_seconds: 60
+  # The `b` factor of S(v, s) = ((v - s) / v)^2 * b.
+  multiplier: 1.0
+
+analytics:
+  # Width of the |quote price - fair value| buckets in the fill-rate chart.
+  fill_distance_bucket: 0.005
+  calibration_bins: 10
+  # `mm verify`: how long a REST checkpoint may run ahead of the stream's timestamps.
+  replay_skew_ms: 250
+
+paper:
+  dashboard_refresh_seconds: 1
+  flush_seconds: 5
+
+paths:
+  data_dir: data
+  reports_dir: reports
+  database_url: sqlite:///data/tickbook.db

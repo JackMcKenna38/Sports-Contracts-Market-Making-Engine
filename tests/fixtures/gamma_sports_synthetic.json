@@ -1,0 +1,5 @@
+[
+  {"id": 1, "sport": "nba", "tags": "1,7450,9000", "series": "100"},
+  {"id": 2, "sport": "nhl", "tags": "1,8990,9000", "series": "200"},
+  {"id": 3, "sport": "mlb", "tags": "1,3000,9000", "series": "300"}
+]

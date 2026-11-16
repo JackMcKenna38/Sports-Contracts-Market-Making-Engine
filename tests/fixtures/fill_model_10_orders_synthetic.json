@@ -1,0 +1,42 @@
+{
+  "comment": "Synthetic. Ten orders against a hand-built book; expected fills worked out by hand. Latency 0.",
+  "book": {"ts": 0, "bids": [[0.48, 100], [0.47, 50]], "asks": [[0.52, 80], [0.53, 40]]},
+  "orders": [
+    {"ts": 1, "side": "BUY", "price": 0.48, "size": 10},
+    {"ts": 1, "side": "BUY", "price": 0.47, "size": 20},
+    {"ts": 1, "side": "SELL", "price": 0.52, "size": 30},
+    {"ts": 1, "side": "SELL", "price": 0.53, "size": 10},
+    {"ts": 1, "side": "BUY", "price": 0.49, "size": 15},
+    {"ts": 1, "side": "SELL", "price": 0.51, "size": 5},
+    {"ts": 1, "side": "BUY", "price": 0.52, "size": 10},
+    {"ts": 1, "side": "SELL", "price": 0.48, "size": 10},
+    {"ts": 1, "side": "BUY", "price": 0.46, "size": 10},
+    {"ts": 1, "side": "SELL", "price": 0.54, "size": 10}
+  ],
+  "events": [
+    {"kind": "trade", "ts": 2, "side": "SELL", "price": 0.49, "size": 10},
+    {"kind": "trade", "ts": 3, "side": "SELL", "price": 0.48, "size": 105},
+    {"kind": "trade", "ts": 4, "side": "SELL", "price": 0.48, "size": 4},
+    {"kind": "trade", "ts": 5, "side": "BUY", "price": 0.52, "size": 90},
+    {"kind": "cancel", "ts": 6, "order_id": 3},
+    {"kind": "trade", "ts": 7, "side": "BUY", "price": 0.52, "size": 50},
+    {"kind": "delta", "ts": 8, "side": "BUY", "price": 0.55, "size": 10},
+    {"kind": "trade", "ts": 9, "side": "SELL", "price": 0.40, "size": 100}
+  ],
+  "expected_fills": [
+    [5, 10, "trade", 2],
+    [5, 5, "trade_through", 3],
+    [1, 4, "trade", 4],
+    [6, 5, "trade_through", 5],
+    [3, 5, "trade", 5],
+    [4, 10, "book_cross", 8],
+    [10, 10, "book_cross", 8],
+    [1, 6, "trade_through", 9],
+    [2, 20, "trade_through", 9],
+    [9, 10, "trade_through", 9]
+  ],
+  "expected_status": {
+    "1": "filled", "2": "filled", "3": "cancelled", "4": "filled", "5": "filled",
+    "6": "filled", "7": "rejected", "8": "rejected", "9": "filled", "10": "filled"
+  }
+}
