@@ -1,0 +1,97 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --locked
+      - name: Lint
+        run: uv run ruff check .
+      - name: Format
+        run: uv run ruff format --check .
+      - name: Types
+        run: uv run mypy
+      - name: Unit and property tests with coverage gate
+        run: uv run pytest --cov=mm --cov-report=term-missing --cov-fail-under=85
+
+  postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: tickbook
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: tickbook_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U tickbook -d tickbook_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --locked
+      - name: Unit and property tests on PostgreSQL
+        run: uv run pytest
+        env:
+          MM_TEST_DATABASE_URL: postgresql+psycopg://tickbook:ci-only@localhost:5432/tickbook_test
+
+  ocaml:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ocaml/binstats
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: "5.2"
+      - name: Install dependencies
+        run: opam install . --deps-only --with-test
+      - name: Build
+        run: opam exec -- dune build
+      - name: Test
+        run: opam exec -- dune test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate compose file
+        run: docker compose config --quiet
+        env:
+          POSTGRES_PASSWORD: ci-only
+      - name: Build image
+        run: docker build --tag tickbook:ci .
+      - name: Image runs the CLI and carries no order-signing package
+        run: |
+          docker run --rm tickbook:ci --help
+          docker run --rm --entrypoint python tickbook:ci -c "
+          import importlib.util, sys
+          banned = ['py_clob_client', 'py_order_utils', 'eth_account', 'eth_keys', 'web3']
+          found = [m for m in banned if importlib.util.find_spec(m)]
+          sys.exit(f'banned packages in image: {found}' if found else 0)"
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,25 @@
+name: nightly-integration
+
+# Hits the live public read-only endpoints once and runs the recorder for five
+# minutes, so an upstream API change fails loudly. Never part of the push build.
+on:
+  schedule:
+    - cron: "17 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Install
+        run: uv sync --locked
+      - name: Integration tests
+        run: uv run pytest -m integration -ra
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
