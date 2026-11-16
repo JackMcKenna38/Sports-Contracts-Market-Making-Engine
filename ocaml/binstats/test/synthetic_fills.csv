@@ -1,0 +1,5 @@
+run_id,condition_id,fair,outcome
+synthetic,0xa,0.25,0
+synthetic,0xb,0.25,1
+synthetic,0xc,0.75,1
+synthetic,0xd,0.75,1

@@ -1,0 +1,13 @@
+(test
+ (name test_binstats)
+ (libraries binstats))
+
+(rule
+ (with-stdout-to
+  cli.actual
+  (run %{exe:../bin/main.exe} --bins 2 %{dep:synthetic_fills.csv})))
+
+(rule
+ (alias runtest)
+ (action
+  (diff cli.expected cli.actual)))
