@@ -1,0 +1,51 @@
+# Long-running recorder with PostgreSQL. Secrets come from .env (git-ignored):
+#   POSTGRES_PASSWORD=...   required
+#   ODDS_API_KEY=...        optional; without it no odds are polled
+services:
+  postgres:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: tickbook
+      POSTGRES_USER: tickbook
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Loopback only: lets `mm backtest`, `mm verify` and `mm report` run from a checkout on
+    # the host (or through an SSH tunnel) against the recorded database.
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tickbook -d tickbook"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  recorder:
+    build: .
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MM_DATABASE_URL: postgresql+psycopg://tickbook:${POSTGRES_PASSWORD}@postgres:5432/tickbook
+      ODDS_API_KEY: ${ODDS_API_KEY:-}
+    volumes:
+      - recorder-data:/app/data
+    command: ["record"]
+    healthcheck:
+      test: ["CMD", "mm", "status", "--require-live"]
+      interval: 60s
+      timeout: 30s
+      start_period: 300s
+      retries: 3
+    stop_grace_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "50m"
+        max-file: "5"
+
+volumes:
+  pgdata:
+  recorder-data:
