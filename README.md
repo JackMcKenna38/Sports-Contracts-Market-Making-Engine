@@ -9,7 +9,7 @@ A 2026 research rebuild of a pre-game sports market-making strategy run on Polym
 
 1. **Nothing made up.** Every number in a result, chart or this README comes from data the system downloaded or recorded. If a source is down or missing, the run fails loudly.
 2. **Synthetic data only in tests**, under `tests/fixtures/`, with `synthetic` in the file name.
-3. **No personal account data.** No wallet address, profile name or trade history of any personal account.
+3. **No personal account data. Although use code as you'd like privately** No wallet address, profile name or trade history of any personal account.
 4. **No raw data in Git.** Downloaded trades include other users' wallet addresses; `data/` is git-ignored, wallet fields are never written to the database, and only aggregated results are committed.
 5. **No backdating.** Commits carry their real dates.
 6. **No original live code.** Nothing is copied from the strategy's live implementation.
